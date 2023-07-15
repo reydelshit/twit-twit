@@ -1,12 +1,18 @@
 import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import Head from "next/head";
-import Link from "next/link";
+import { useEffect } from "react";
 import { api } from "~/utils/api";
 
 export default function Home() {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
   const user = useUser();
+
+  const { data } = api.posts.getAll.useQuery();
+
+  // Move the console.log statement inside a useEffect hook
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
   return (
     <>
       <Head>
@@ -17,11 +23,20 @@ export default function Home() {
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
             <br />
             {!user.isSignedIn && <SignInButton />}
             {!!user.isSignedIn && <SignOutButton />}
           </h1>
+
+          <div>
+            {data?.map((post) => (
+              <div key={post.id}>
+                <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+                  {post.content}
+                </h1>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
     </>
